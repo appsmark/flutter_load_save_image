@@ -91,7 +91,7 @@ class _LocalImage extends State<LocalImage> {
         appBar: AppBar(
           backgroundColor: const Color(0xFF731816),
           foregroundColor: const Color(0xFF00AADE),
-          title: const Text("SAVE & SHOW LOCAL IMAGES"),
+          title: const Text("LOCAL IMAGE"),
         ),
         body: Center(
           child: Column(
