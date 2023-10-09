@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:image_picker/image_picker.dart';
 
 Future<void> main() async {
@@ -15,7 +16,7 @@ Future<void> main() async {
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
       overlays: [SystemUiOverlay.bottom]);
 
-  //Permissions.requestAll();
+  Permissions.requestAll();
 
   runApp(
     MaterialApp(
@@ -43,7 +44,6 @@ class _Experiment extends State<Experiment> {
     try {
       final image = await ImagePicker().pickImage(source: ImageSource.gallery);
       if (image == null) return;
-
       final imageTemp = File(image.path);
       setState(() {
         this.image = imageTemp;
@@ -95,5 +95,23 @@ class _Experiment extends State<Experiment> {
             ),
           ]),
         ));
+  }
+}
+
+class Permissions {
+  static List<Permission> androidPermissions = <Permission>[Permission.storage];
+  static List<Permission> iosPermissions = <Permission>[Permission.storage];
+
+  static Future<Map<Permission, PermissionStatus>> requestAll() async {
+    if (Platform.isIOS) {
+      return await iosPermissions.request();
+    }
+    return await androidPermissions.request();
+  }
+
+  static Future<Map<Permission, PermissionStatus>> request(
+      Permission permission) async {
+    final List<Permission> permissions = <Permission>[permission];
+    return await permissions.request();
   }
 }
