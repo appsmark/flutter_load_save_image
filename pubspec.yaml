@@ -13,6 +13,8 @@ dependencies:
   image:  ^4.0.15
   image_picker: ^1.0.4
   permission_handler: ^10.3.0
+  image_gallery_saver: ^2.0.3  
+
 
 dev_dependencies:
   flutter_test:
