@@ -1,3 +1,105 @@
+/*
+import 'dart:async';
+import 'dart:io';
+
+import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
+
+void main() {
+  runApp(
+    MaterialApp(
+      title: 'Reading and Writing Files',
+      home: FlutterDemo(storage: CounterStorage()),
+    ),
+  );
+}
+
+class CounterStorage {
+  Future<String> get _localPath async {
+    final directory = await getApplicationDocumentsDirectory();
+
+    return directory.path;
+  }
+
+  Future<File> get _localFile async {
+    final path = await _localPath;
+    return File('$path/counter.txt');
+  }
+
+  Future<int> readCounter() async {
+    try {
+      final file = await _localFile;
+
+      // Read the file
+      final contents = await file.readAsString();
+
+      return int.parse(contents);
+    } catch (e) {
+      // If encountering an error, return 0
+      return 0;
+    }
+  }
+
+  Future<File> writeCounter(int counter) async {
+    final file = await _localFile;
+
+    // Write the file
+    return file.writeAsString('$counter');
+  }
+}
+
+class FlutterDemo extends StatefulWidget {
+  const FlutterDemo({super.key, required this.storage});
+
+  final CounterStorage storage;
+
+  @override
+  State<FlutterDemo> createState() => _FlutterDemoState();
+}
+
+class _FlutterDemoState extends State<FlutterDemo> {
+  int _counter = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.storage.readCounter().then((value) {
+      setState(() {
+        _counter = value;
+      });
+    });
+  }
+
+  Future<File> _incrementCounter() {
+    setState(() {
+      _counter++;
+    });
+
+    // Write the variable as a string to the file.
+    return widget.storage.writeCounter(_counter);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Reading and Writing Files'),
+      ),
+      body: Center(
+        child: Text(
+          'Button tapped $_counter time${_counter == 1 ? '' : 's'}.',
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _incrementCounter,
+        tooltip: 'Increment',
+        child: const Icon(Icons.add),
+      ),
+    );
+  }
+}
+*/
+
 import 'dart:io';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
@@ -6,6 +108,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:flutter/rendering.dart';
+import 'package:path_provider/path_provider.dart';
 
 Future<void> main() async {
   // Ensure that plugin services are initialized
@@ -21,11 +124,8 @@ Future<void> main() async {
   Permissions.requestAll();
 
   runApp(
-    MaterialApp(
-      theme: ThemeData(
-        scaffoldBackgroundColor: const Color(0xFF731816),
-      ),
-      home: const LocalImage(),
+    const MaterialApp(
+      home: LocalImage(),
       debugShowCheckedModeBanner: false,
     ),
   );
@@ -41,6 +141,7 @@ class LocalImage extends StatefulWidget {
 class _LocalImage extends State<LocalImage> {
   File? image;
   final GlobalKey _globalKey = GlobalKey();
+  String imageName = "MyPicture.png";
 
   Future loadFromGallery() async {
     try {
@@ -81,14 +182,45 @@ class _LocalImage extends State<LocalImage> {
     }
   }
 
-  loadFromFiles() {}
-  saveToFiles() {}
+  Future loadFromFiles(String name) async {
+    final directory = await getExternalStorageDirectory();
+    // getTemporaryDirectory();
+    // getApplicationDocumentsDirectory();
+    final myImagePath = directory?.path;
+    final imageTemp = File("$myImagePath/$name");
+    setState(() {
+      image = imageTemp;
+    });
+  }
+
+  Future saveToFiles(String name) async {
+    RenderRepaintBoundary boundary =
+        _globalKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
+    ui.Image image = await boundary.toImage();
+    ByteData? byteData =
+        await (image.toByteData(format: ui.ImageByteFormat.png));
+    if (byteData != null) {
+      final directory = await getExternalStorageDirectory();
+      // getTemporaryDirectory();
+      // getApplicationDocumentsDirectory();
+      if (directory != null) {
+        debugPrint(directory.toString());
+        final myImagePath = directory.path;
+        await Directory(myImagePath).create();
+        final file = File("$myImagePath/$name");
+        final buffer = byteData.buffer;
+        await file.writeAsBytes(
+            buffer.asUint8List(byteData.offsetInBytes, byteData.lengthInBytes));
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: const Color(0xFF731816),
         appBar: AppBar(
+          centerTitle: true,
           backgroundColor: const Color(0xFF731816),
           foregroundColor: const Color(0xFF00AADE),
           title: const Text("LOCAL IMAGE"),
@@ -105,7 +237,6 @@ class _LocalImage extends State<LocalImage> {
                     onPressed: () {
                       takeImageWithCamera();
                     }),
-                /*
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -113,21 +244,22 @@ class _LocalImage extends State<LocalImage> {
                         child: Image.asset(
                           "assets/images/to_files.png",
                           height: 0.1 * MediaQuery.of(context).size.height,
+                          width: 0.1 * MediaQuery.of(context).size.height,
                         ),
                         onPressed: () {
-                          saveToFiles();
+                          saveToFiles(imageName);
                         }),
                     MaterialButton(
                         child: Image.asset(
                           "assets/images/from_files.png",
                           height: 0.1 * MediaQuery.of(context).size.height,
+                          width: 0.1 * MediaQuery.of(context).size.height,
                         ),
                         onPressed: () {
-                          loadFromFiles();
+                          loadFromFiles(imageName);
                         }),
                   ],
-                  
-                ),*/
+                ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -137,6 +269,7 @@ class _LocalImage extends State<LocalImage> {
                               ? "assets/images/to_gallery_android.png"
                               : "assets/images/to_gallery_ios.png",
                           height: 0.1 * MediaQuery.of(context).size.height,
+                          width: 0.1 * MediaQuery.of(context).size.height,
                         ),
                         onPressed: () {
                           saveToGallery();
@@ -147,6 +280,7 @@ class _LocalImage extends State<LocalImage> {
                               ? "assets/images/from_gallery_android.png"
                               : "assets/images/from_gallery_ios.png",
                           height: 0.1 * MediaQuery.of(context).size.height,
+                          width: 0.1 * MediaQuery.of(context).size.height,
                         ),
                         onPressed: () {
                           loadFromGallery();

@@ -1,4 +1,4 @@
-# flutter_load_save_image
+# flutter_local_image
 Flutter example on local image storage and retrieval
 
 # On iOS allow access to Gallery

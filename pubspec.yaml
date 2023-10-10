@@ -1,4 +1,4 @@
-name: flutter_load_save_image
+name: flutter_local_image
 description: "Example Flutter Code for loading and saving local images."
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
@@ -14,6 +14,8 @@ dependencies:
   image_picker: ^1.0.4
   permission_handler: ^10.3.0
   image_gallery_saver: ^2.0.3  
+  path_provider: ^2.1.1
+  path: ^1.8.3
 
 
 dev_dependencies:
