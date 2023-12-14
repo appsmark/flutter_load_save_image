@@ -218,7 +218,7 @@ class _LocalImage extends State<LocalImage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: const Color(0xFF731816),
+        backgroundColor: Colors.cyan, // const Color(0xFF731816),
         appBar: AppBar(
           centerTitle: true,
           backgroundColor: const Color(0xFF731816),
@@ -300,11 +300,20 @@ class _LocalImage extends State<LocalImage> {
                       child: image != null
                           ? Image.file(image!)
                           : Center(
-                              child: Text("PLACEHOLDER",
-                                  style: TextStyle(
-                                      color: const Color(0xFFF9B234),
-                                      fontSize: 0.03 *
-                                          MediaQuery.of(context).size.height)),
+                              child: Column(
+                                children: [
+                                  Text("PLACEHOLDER",
+                                      style: TextStyle(
+                                          color: Colors
+                                              .white, // const Color(0xFFF9B234),
+                                          fontSize: 0.03 *
+                                              MediaQuery.of(context)
+                                                  .size
+                                                  .height)),
+                                  Image.asset("assets/images/6omS.png"),
+                                  Image.asset("assets/images/AB.png"),
+                                ],
+                              ),
                             ),
                     ),
                   ),
